@@ -1,6 +1,9 @@
 package main
 
-import "log"
+import (
+	"log"
+	"sync"
+)
 
 type ContestManager struct {
 	platforms map[string]Platform
@@ -12,21 +15,33 @@ func NewContestManager() ContestManager {
 
 	m.platforms["codeforces"] = CodeforcesPlatform{}
 	m.platforms["leetcode"] = LeetcodePlatform{}
+	m.platforms["codechef"] = CodechefPlatform{}
 
 	return m
 }
 
+
 func (m *ContestManager) GetAllContests() map[string][]Contest {
 	contests := make(map[string][]Contest)
 
-	for key, p := range m.platforms {
+	wg := sync.WaitGroup{}
+	
+	fetchContests := func (p Platform, key string) {
 		c, err := p.GetContests()
 		if err != nil {
 			log.Printf("error in getting contests from %s: %s", p.GetName(), err.Error())
-			continue
+			return
 		}
 		contests[key] = c
+		wg.Done()	
 	}
+
+	for key, p := range m.platforms {
+		go fetchContests(p, key)
+		wg.Add(1)
+	}
+
+	wg.Wait()
 
 	return contests
 }
