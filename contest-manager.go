@@ -9,7 +9,10 @@ type ContestManager struct {
 func NewContestManager() ContestManager {
 	m := ContestManager{}
 	m.platforms = make(map[string]Platform)
+
 	m.platforms["codeforces"] = CodeforcesPlatform{}
+	m.platforms["leetcode"] = LeetcodePlatform{}
+
 	return m
 }
 
@@ -41,6 +44,10 @@ func (m *ContestManager) GetContestsOnPlatforms(ps []string) map[string][]Contes
 		c, err := plat.GetContests()
 		if err != nil {
 			log.Printf("error in getting contests from %s: %s", m.platforms[p].GetName(), err.Error())
+			continue
+		}
+		if len(c) <= 0 {
+			log.Printf("no contests found on '%s'", m.platforms[p].GetName())
 			continue
 		}
 		contests[p] = c
