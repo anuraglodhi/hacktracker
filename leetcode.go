@@ -81,8 +81,11 @@ func (l LeetcodePlatform) GetContests() ([]Contest, error) {
 		}
 		a = "https://leetcode.com" + a
 
+		tparts := strings.Split(title, " ")
+		id := "leetcode-" + strings.ToLower(tparts[0]) + "-" + tparts[2]
+
 		contests = append(contests, Contest{
-			Id: "leetcode-1",
+			Id: id,
 			Title: title,
 			Date: date,
 			ContestUrl: a,
